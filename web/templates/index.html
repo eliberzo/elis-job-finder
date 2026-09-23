@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Eli's Opportunity Queue</title>
+  <link rel="stylesheet" href="/static/styles.css?v=20260827-1">
+  <link rel="stylesheet" href="/static/tabs.css?v=20260826-3">
+  <link rel="stylesheet" href="/static/tooltips.css?v=20260826-3">
+  <link rel="stylesheet" href="/static/resume.css?v=20260827-5">
+  <link rel="stylesheet" href="/static/todo.css?v=20260826-3">
+  <link rel="stylesheet" href="/static/practice.css?v=20260826-7">
+  <link rel="stylesheet" href="/static/interview.css?v=20260826-1">
+</head>
+<body>
+  <header>
+    <div><small>ELI'S RESUME-RANKED JOB SEARCH · ONE APPLICATION PER COMPANY</small><h1>Eli's Opportunity Queue</h1></div>
+    <div class="progress"><b><span id="applied">0</span> / <span id="target">20</span> companies applied</b><i><em id="progress"></em></i></div>
+  </header>
+  <nav class="viewtabs">
+    <button id="jobsTab" class="viewtab selected" title="Browse all jobs and both saved application queues" onclick="setPrimaryView('jobs')">Jobs</button>
+    <button id="resumeGroupTab" class="viewtab" title="Analyze and rebuild Eli's resume" onclick="setPrimaryView('resume')">Resume</button>
+    <button id="practiceBuilderTab" class="viewtab" title="Prepare recruiter, behavioral, system-design, and coding answers" onclick="setPrimaryView('practiceBuilder')">Practice builder</button>
+    <button id="voiceInterviewTab" class="viewtab" title="Practice a spoken company interview and track improvement" onclick="setPrimaryView('voiceInterview')">Voice interview</button>
+    <button id="localEventsTab" class="viewtab" title="Find Austin tech, recruiting, learning, and community events" onclick="setPrimaryView('localEvents')">Local events</button>
+    <button id="workTab" class="viewtab" title="Review job-search goals and actionable tasks" onclick="setPrimaryView('work')">Goals &amp; Todo <span id="todoCount"></span></button>
+  </nav>
+  <nav id="jobsSubtabs" class="subtabs" aria-label="Job views">
+    <button id="allTab" class="subtab selected" onclick="setView('all')">All jobs</button>
+    <button id="practiceTab" class="subtab" onclick="setView('practice')">Selected as practice <span id="practiceCount">0</span></button>
+    <button id="actualTab" class="subtab" onclick="setView('actual')">Selected to apply <span id="actualCount">0</span></button>
+  </nav>
+  <nav id="resumeSubtabs" class="subtabs" aria-label="Resume views" hidden>
+    <button id="resumeTab" class="subtab selected" onclick="setView('resume')"><b>Analyze</b><span>Score an existing version</span></button>
+    <button id="actualResumeTab" class="subtab" onclick="setView('actualResume')"><b>Create</b><span>Build from career evidence</span></button>
+  </nav>
+  <nav id="practiceSubtabs" class="subtabs" aria-label="Practice builder views" hidden>
+    <button id="practiceExpectationsTab" class="subtab selected" onclick="setView('practiceExpectations')">Interview expectations</button>
+    <button id="practiceHrTab" class="subtab" onclick="setView('practiceHr')">HR pitch builder</button>
+    <button id="practiceBehavioralTab" class="subtab" onclick="setView('practiceBehavioral')">Behavioral builder</button>
+    <button id="practiceSystemTab" class="subtab" onclick="setView('practiceSystem')">System design builder</button>
+    <button id="practiceLeetcodeTab" class="subtab" onclick="setView('practiceLeetcode')">Coding skill builder</button>
+  </nav>
+  <nav id="workSubtabs" class="subtabs" aria-label="Goals and todo views" hidden>
+    <button id="goalsTab" class="subtab selected" onclick="setView('goals')">Goals</button>
+    <button id="todoTab" class="subtab" onclick="setView('todo')">Todo list <span id="todoSubtabCount"></span></button>
+  </nav>
+  <main>
+    <div class="toolbar">
+      <input id="search" placeholder="Search company, role, city, or skill…">
+      <select id="location" title="Filter by job location"><option value="us" selected>U.S. only</option><option value="">All countries</option><option value="foreign">Foreign postings</option><option value="austin">Austin proper</option><option value="remote">Fully remote</option><option value="austin_remote">Austin or remote</option><option value="elsewhere">Other on-site / hybrid</option></select>
+      <select id="status" title="Filter by application status"><option value="active">Not applied</option><option value="">All statuses</option><option>NEW</option><option>OPENED</option><option>APPLIED</option><option>SKIPPED</option><option value="PROTECTED">SELECTED TO APPLY</option></select>
+      <select id="sort" title="Choose company ranking order"><option value="actual">Match rank</option><option value="score">Best practice candidates</option><option value="newest">Newest postings</option><option value="comp">Highest compensation</option><option value="recent">Recently discovered</option></select>
+      <button class="btn linkedin" title="Search current public LinkedIn listings" onclick="linkedinDialog.showModal()">in Find on LinkedIn</button>
+      <button id="boardsButton" class="btn" title="Deep-crawl official career sites for companies with a Match score above 8 or selected to apply" onclick="refreshCompanyBoards()">Priority company sites</button>
+      <button class="btn" title="Import URLs, CSV, or JSON" onclick="importDialog.showModal()">＋ Import</button>
+      <button class="btn" title="Recalculate scores and refresh the internal Top 40 benchmark" onclick="rescore()">↻ Re-score</button>
+      <button id="compButton" class="btn" title="Fill missing compensation for every role selected to apply and Match scores above 7, using Levels.fyi or company-posted benchmarks" onclick="enrichCompensation()">$ Fill compensation</button>
+      <span id="count"></span>
+    </div>
+    <section id="corpusProgress" class="corpus-progress" aria-label="Job mining progress"></section>
+    <section id="nextMoves" class="next-moves" aria-label="Recommended next job-search moves"></section>
+    <div class="queue-heading"><div><small>RANKED OPPORTUNITIES</small><h2>Application queue</h2></div><p>Each row leads with the decision: fit, freshness, compensation, and what to do next.</p></div>
+    <div class="tablewrap"><table class="opportunity-table"><thead><tr><th title="Opportunity strength for Eli: higher score is better; #1 is best">Priority</th><th>Company</th><th>Opportunity</th><th title="Austin, remote, practice eligibility, and matching resume skills">Fit &amp; resume signals</th><th>Compensation</th><th>Status &amp; actions</th></tr></thead><tbody id="jobs"></tbody></table></div>
+    <section id="resumeAnalysis" class="resume-analysis" hidden></section>
+    <section id="actualResume" class="actual-resume" hidden>
+      <header class="actual-resume-hero">
+        <div><small>AI RESUME STUDIO · SELECTED-JOB TARGETING</small><h2>Turn your career evidence into a targeted resume</h2><p>The builder uses your selected companies' relevant Senior and Staff roles to prioritize evidence, while keeping every claim grounded in your own career documents.</p></div>
+        <a class="btn primary download-resume" href="/resume/actual/download" download title="Download the rebuilt application resume as a PDF">↓ Download rebuilt resume</a>
+      </header>
+      <section class="evidence-studio">
+        <div class="evidence-intro"><small>STEP 1 · ADD CONTEXT</small><h3>Career evidence library</h3><p>The generator may only use candidate facts found in these files and the current draft. Selected job descriptions guide prioritization, never candidate claims.</p></div>
+        <div class="evidence-upload">
+          <select id="resumeSourceKind" aria-label="Document type"><option value="previous_resume">Previous resume</option><option value="performance_review">Yearly / performance review</option><option value="tech_stack">Tech stack or project notes</option><option value="career_context">Other career context</option></select>
+          <label class="btn source-file-button">＋ Choose files<input id="resumeSourceFiles" type="file" accept=".pdf,.txt,.md,.csv,.json,application/pdf,text/plain" multiple onchange="uploadResumeSources(this.files)"></label>
+        </div>
+        <div id="resumeSources" class="source-list"><span class="analysis-empty">No context uploaded yet.</span></div>
+        <div id="resumeTargetContext" class="resume-target-context"></div>
+        <div class="generate-row"><label><span>Optional focus within selected roles</span><input id="resumeTarget" placeholder="e.g. emphasize Staff-level platform scope"></label><span id="resumeAiStatus" class="ai-status"></span><button id="generateResumeButton" class="btn primary" onclick="generateResumeDraft()">✦ Generate with AI</button></div>
+      </section>
+      <section id="resumeBuilderHealth" class="resume-builder-health" aria-live="polite"></section>
+      <div class="resume-builder-workspace">
+        <form id="resumeBuilderForm" class="resume-editor" onsubmit="saveResumeBuilder(event)" oninput="markResumeDirty()">
+          <div id="resumeBuilderFields" class="resume-editor-loading">Loading editable resume…</div>
+        </form>
+        <aside class="resume-preview-column">
+          <div class="preview-heading"><div><small>LIVE OUTPUT</small><b>Application PDF</b></div><span id="resumeSaveState">Saved locally</span></div>
+          <div class="resume-preview-shell"><iframe id="actualResumeFrame" title="Rebuilt resume PDF preview"></iframe></div>
+        </aside>
+      </div>
+    </section>
+    <section id="practiceBuilder" class="practice-builder" hidden></section>
+    <section id="voiceInterview" class="voice-interview" hidden></section>
+    <section id="localEvents" class="practice-builder" hidden></section>
+    <section id="goalsView" class="todo-view" hidden></section>
+    <section id="todoView" class="todo-view" hidden></section>
+  </main>
+  <dialog id="importDialog"><form onsubmit="doImport(event)"><h2>Import candidate jobs</h2><p>Paste URLs, CSV with a url column, or JSON.</p><textarea id="importText" required></textarea><footer><button type="button" class="btn" onclick="importDialog.close()">Cancel</button><button class="btn primary">Import + score</button></footer></form></dialog>
+  <dialog id="linkedinDialog"><form onsubmit="discoverLinkedIn(event)"><h2>Find jobs on LinkedIn</h2><p>Public listings only; defaults to the high-priority last 7 days.</p><div class="fields"><label>Keywords<input id="liKeywords" value="Senior Backend Engineer" required></label><label class="full">Target cities (semicolon-separated)<input id="liLocations" value="Austin, TX; Seattle, WA; Chicago, IL; Denver, CO; Boston, MA; Atlanta, GA" required></label><label>Posted within<select id="liDays"><option value="1">24 hours</option><option value="7" selected>7 days</option><option value="30">30 days</option></select></label><label>Maximum results<input id="liLimit" type="number" min="1" max="350" value="300"></label></div><p class="fine">Austin-proper and fully remote postings are always mined as strategic burn signals. No login, cookies, CAPTCHA bypass, or auto-application.</p><footer><button type="button" class="btn" onclick="linkedinDialog.close()">Cancel</button><button id="liSubmit" class="btn linkedin">Search + rank</button></footer></form></dialog>
+  <div id="toast"></div>
+  <script src="/static/app.js?v=20260827-5"></script>
+  <script src="/static/resume.js?v=20260827-6"></script>
+  <script src="/static/practice.js?v=20260826-10"></script>
+  <script src="/static/interview.js?v=20260826-1"></script>
+  <script src="/static/todo.js?v=20260826-3"></script>
+  <script src="/static/goals.js?v=20260826-1"></script>
+</body>
+</html>

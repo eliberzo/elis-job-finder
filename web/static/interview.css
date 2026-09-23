@@ -1,0 +1,23 @@
+.voice-interview { display:grid; gap:16px; padding-bottom:36px; }
+.voice-interview[hidden] { display:none!important; }
+.interview-hero,.interview-live-head { display:flex; align-items:center; justify-content:space-between; gap:20px; padding:22px 24px; border-radius:14px; background:linear-gradient(120deg,#17283a,#294f70); color:#fff; }
+.interview-hero small,.interview-live-head small,.interview-plan small { font-size:9px; font-weight:900; letter-spacing:.12em; }
+.interview-hero h2,.interview-live-head h2 { margin:4px 0; }
+.interview-hero p { margin:0; color:#c8d7e5; }
+.interview-hero>div:last-child { display:grid; text-align:center; }.interview-hero strong { font-size:30px; }.interview-hero span { font-size:9px; }
+.interview-warning { padding:13px 16px; border:1px solid #e2c38c; border-radius:10px; background:#fff8e9; color:#775522; }
+.interview-plans { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; }
+.interview-plan { padding:18px; border:1px solid #dbe2e8; border-radius:13px; background:#fff; box-shadow:0 5px 18px #1b39500b; }
+.interview-plan small { color:#55748c; }.interview-plan h3 { margin:7px 0; }.interview-plan p { min-height:42px; color:#66747e; font-size:11px; line-height:1.5; }
+.interview-plan>div { display:flex; align-items:center; justify-content:space-between; gap:10px; }.interview-plan span { color:#73808a; font-size:9px; }
+.interviewer-stage { display:grid; justify-items:center; gap:10px; padding:50px 24px; border:1px solid #d9e2e8; border-radius:16px; background:radial-gradient(circle at 50% 0,#eef7ff,#fff 58%); text-align:center; }
+.interviewer-avatar { display:grid; width:72px; height:72px; place-items:center; border-radius:50%; background:#4285f4; color:#fff; font-size:30px; font-weight:900; box-shadow:0 9px 28px #4285f444; }
+.interviewer-stage small { color:#5c7890; font-size:9px; font-weight:900; letter-spacing:.13em; }.interviewer-stage h2 { max-width:760px; margin:0; line-height:1.35; }
+.replay-question { border:0; background:transparent; color:#356b98; cursor:pointer; }
+.recording-controls { display:grid; justify-items:center; gap:8px; padding:20px; }.recording-controls p { color:#73808a; font-size:10px; }
+.record-answer { display:flex; align-items:center; gap:10px; padding:14px 24px; border:0; border-radius:999px; background:#b53535; color:#fff; font-weight:800; cursor:pointer; }.record-answer i { width:12px; height:12px; border-radius:50%; background:#fff; }.record-answer.recording { background:#263746; }.record-answer.recording i { border-radius:2px; }
+.live-transcript,.interview-history-list { display:grid; gap:10px; }.live-transcript article,.history-body>article { padding:15px; border:1px solid #dfe4e7; border-radius:11px; background:#fff; }.live-transcript p,.history-body p { color:#53636e; line-height:1.55; }.live-transcript audio,.history-body audio { width:100%; height:34px; }
+.interview-history { overflow:hidden; border:1px solid #dce2e5; border-radius:12px; background:#fff; }.interview-history>summary { display:flex; align-items:center; justify-content:space-between; padding:15px 17px; cursor:pointer; }.interview-history>summary span { display:grid; gap:3px; }.interview-history>summary small { color:#638095; font-size:8px; font-weight:900; }.interview-history>summary em { color:#315d7d; font-style:normal; font-weight:900; }
+.history-body { display:grid; gap:10px; padding:12px; border-top:1px solid #e2e6e8; background:#f7f9fa; }.history-body article header { display:flex; justify-content:space-between; gap:12px; }.history-body article aside { margin-top:12px; padding:12px; border-radius:9px; background:#f0f6fa; }
+.interview-evaluation { display:grid; gap:14px; padding:18px; border-radius:12px; background:#182f40; color:#fff; }.interview-evaluation>header { display:flex; gap:16px; }.interview-evaluation>header>strong { font-size:30px; }.interview-evaluation p { color:#cfdae1; }.competency-scores { display:grid; grid-template-columns:repeat(6,1fr); gap:7px; }.competency-scores span { display:grid; gap:5px; padding:9px; border-radius:8px; background:#ffffff0d; }.competency-scores b { font-size:8px; text-transform:capitalize; }.competency-scores em { font-style:normal; font-weight:900; }.evaluation-columns { display:grid; grid-template-columns:1fr 1fr; gap:18px; }.evaluation-columns li { margin:6px 0; color:#d6e0e6; font-size:10px; line-height:1.45; }
+@media(max-width:820px){.interview-plans,.competency-scores,.evaluation-columns{grid-template-columns:1fr}.interview-hero,.interview-live-head{align-items:flex-start;flex-direction:column}}

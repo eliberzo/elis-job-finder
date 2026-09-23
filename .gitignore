@@ -1,0 +1,34 @@
+# Local job-search data: resumes, profile, saved choices, jobs, and recordings.
+data/
+output/
+exports/
+tmp/
+jobs.db*
+jobs.jsonl
+actual_companies.jsonl
+
+# Local runtime and browser artifacts.
+.extension-install/
+__pycache__/
+.venv/
+*.py[cod]
+.DS_Store
+.pytest_cache/
+.ruff_cache/
+.coverage
+*.log
+*.crx
+
+# Local secrets and editor settings.
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+.idea/
+.vscode/
+
+# Unrelated, independently versioned project nested in this workspace.
+ElisSixPack/
+chromium-private-setup/

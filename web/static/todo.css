@@ -1,0 +1,27 @@
+.todo-view { display:grid; gap:14px; padding-bottom:30px; }
+.todo-view[hidden] { display:none !important; }
+.todo-loading,.todo-empty { padding:50px; color:var(--muted); text-align:center; }
+.todo-hero { padding:22px 24px; border-radius:14px; background:linear-gradient(120deg,#16231e,#335247); color:#fff; }
+.todo-hero small { color:#9fb7aa; font-weight:800; letter-spacing:.1em; }.todo-hero h2 { margin:3px 0 4px; font-size:27px; }.todo-hero p { margin:0; color:#c8d5ce; }
+.todo-tabs { display:flex; align-items:center; gap:6px; padding:5px; border:1px solid #d8ddd8; border-radius:11px; background:#eef1ed; }
+.todo-tabs button { display:flex; align-items:center; gap:7px; padding:8px 13px; border:0; border-radius:8px; background:transparent; color:#617069; font-size:10px; font-weight:900; cursor:pointer; }
+.todo-tabs button.selected { background:#fff; color:#172a22; box-shadow:0 2px 8px #273d3314; }
+.todo-tabs span { display:grid; min-width:19px; height:19px; padding:0 5px; place-items:center; border-radius:999px; background:#dde4de; font-size:8px; }
+.todo-tabs button.selected span { background:#dcece1; color:#286045; }
+.todo-list { display:grid; gap:10px; }
+.goals-hero { padding:22px 24px; border-radius:14px; background:linear-gradient(120deg,#1b2638,#425b7e); color:#fff; }
+.goals-hero small { color:#b7c8df; font-weight:800; letter-spacing:.1em; }.goals-hero h2 { margin:3px 0 4px; font-size:27px; }.goals-hero p { margin:0; color:#d6dfec; }
+.goal-list { display:grid; gap:10px; }.goal-card { display:grid; grid-template-columns:42px minmax(0,1fr); gap:14px; padding:19px; border:1px solid #d4d9e1; border-radius:13px; background:var(--card); box-shadow:0 4px 15px #24352e08; }
+.goal-number { display:grid; width:34px; height:34px; place-items:center; border-radius:10px; background:#e7edf6; color:#324e76; font-size:14px; font-weight:900; }
+.todo-card { display:grid; grid-template-columns:42px minmax(0,1fr) auto; gap:14px; align-items:start; padding:17px 19px; border:1px solid #d8d8d0; border-radius:13px; background:var(--card); box-shadow:0 4px 15px #24352e08; }
+.todo-card.blocked { border-left:4px solid #b46b46; }.todo-card.done { opacity:.62; }.todo-card.done h3 { text-decoration:line-through; }
+.todo-check { display:grid; width:34px; height:34px; place-items:center; border:2px solid #9eaaa4; border-radius:10px; background:#fff; color:var(--green); font-size:19px; font-weight:900; cursor:pointer; }
+.todo-card.done .todo-check { border-color:#74a68b; background:#e5f2e9; }
+.todo-meta { display:flex; align-items:center; gap:8px; color:var(--muted); font-size:9px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
+.todo-meta b { border-radius:8px; padding:3px 6px; background:#eef0eb; color:#5c6963; }.todo-card.blocked .todo-meta b { background:#f2e4dc; color:#8b4d31; }
+.todo-meta time { margin-left:auto; color:#4c6e5c; font-size:8px; letter-spacing:0; text-transform:none; }
+.todo-copy h3 { margin:5px 0 4px; font-size:15px; }.todo-copy p { margin:0; max-width:1000px; color:var(--muted); font-size:11px; line-height:1.5; }
+.todo-blocker { margin-top:9px; padding:7px 9px; border-radius:8px; background:#faf0e9; color:#8b4d31; font-size:10px; font-weight:700; }
+.todo-block-action { align-self:center; padding:7px 9px; border:1px solid #cbd2cd; border-radius:8px; background:#fff; color:#65726c; font-size:8px; font-weight:900; cursor:pointer; white-space:nowrap; }
+.todo-block-action:hover { border-color:#a96644; color:#8b4d31; }.todo-block-action.active { border-color:#d7b8a8; background:#fbefe8; color:#8b4d31; }
+@media (max-width:700px) { .todo-card { grid-template-columns:34px 1fr; padding:14px; }.todo-block-action { grid-column:2; justify-self:start; }.todo-meta { flex-wrap:wrap; }.todo-meta time { width:100%; margin:0; }.todo-hero h2 { font-size:23px; } }

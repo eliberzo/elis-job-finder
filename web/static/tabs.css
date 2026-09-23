@@ -1,0 +1,73 @@
+.viewtabs {
+  display: flex;
+  gap: 7px;
+  max-width: 1420px;
+  margin: 16px auto 0;
+  padding: 0 22px;
+}
+
+.viewtab {
+  border: 1px solid transparent;
+  border-radius: 10px 10px 0 0;
+  padding: 10px 17px;
+  background: #ebe9e1;
+  color: #65706a;
+  font-weight: 800;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.viewtab.selected {
+  border-color: #c7ccc6;
+  border-bottom-color: #fffdf7;
+  background: #fffdf7;
+  color: #13211b;
+  box-shadow: 0 -3px 12px #24352e0a;
+}
+
+.viewtab span {
+  display: inline-block;
+  min-width: 20px;
+  margin-left: 4px;
+  border-radius: 14px;
+  padding: 1px 6px;
+  background: #e4e5dd;
+}
+
+.subtabs {
+  display: flex;
+  gap: 5px;
+  max-width: 1420px;
+  margin: 0 auto 16px;
+  border-top: 1px solid #cacbc4;
+  border-bottom: 1px solid #d6d7d1;
+  padding: 9px 22px;
+  background: #fffdf780;
+}
+
+.subtabs[hidden] { display: none !important; }
+
+.subtab {
+  border: 0;
+  border-radius: 999px;
+  padding: 7px 12px;
+  background: transparent;
+  color: #65706a;
+  font-size: 11px;
+  font-weight: 800;
+  white-space: nowrap;
+  cursor: pointer;
+}
+#resumeSubtabs .subtab { display:grid; gap:1px; text-align:left; }
+#resumeSubtabs .subtab b { font-size:11px; }
+#resumeSubtabs .subtab span { color:var(--muted); font-size:8px; font-weight:500; }
+#resumeSubtabs .subtab.selected span { color:inherit; opacity:.72; }
+
+.subtab:hover { background: #eceee8; color: #33433b; }
+.subtab.selected { background: #183027; color: #fff; }
+.subtab span { margin-left: 3px; opacity: .78; }
+
+@media (max-width: 760px) {
+  .viewtabs, .subtabs { overflow-x: auto; padding-left: 12px; padding-right: 12px; }
+  .viewtab { padding: 9px 12px; }
+}
