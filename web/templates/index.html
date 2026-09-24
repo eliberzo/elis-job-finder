@@ -27,7 +27,7 @@
   </nav>
   <nav id="jobsSubtabs" class="subtabs" aria-label="Job views">
     <button id="allTab" class="subtab selected" onclick="setView('all')">All jobs</button>
-    <button id="practiceTab" class="subtab" onclick="setView('practice')">Selected as practice <span id="practiceCount">0</span></button>
+    <button id="practiceTab" class="subtab" style="display:none" aria-hidden="true" onclick="setView('practice')">Selected as practice <span id="practiceCount">0</span></button>
     <button id="actualTab" class="subtab" onclick="setView('actual')">Selected to apply <span id="actualCount">0</span></button>
   </nav>
   <nav id="resumeSubtabs" class="subtabs" aria-label="Resume views" hidden>
@@ -58,10 +58,10 @@
       <button id="compButton" class="btn" title="Fill missing compensation for every role selected to apply and Match scores above 7, using Levels.fyi or company-posted benchmarks" onclick="enrichCompensation()">$ Fill compensation</button>
       <span id="count"></span>
     </div>
-    <section id="corpusProgress" class="corpus-progress" aria-label="Job mining progress"></section>
+    <section id="corpusProgress" class="corpus-progress" aria-label="Current job queue"></section>
     <section id="nextMoves" class="next-moves" aria-label="Recommended next job-search moves"></section>
     <div class="queue-heading"><div><small>RANKED OPPORTUNITIES</small><h2>Application queue</h2></div><p>Each row leads with the decision: fit, freshness, compensation, and what to do next.</p></div>
-    <div class="tablewrap"><table class="opportunity-table"><thead><tr><th title="Opportunity strength for Eli: higher score is better; #1 is best">Priority</th><th>Company</th><th>Opportunity</th><th title="Austin, remote, practice eligibility, and matching resume skills">Fit &amp; resume signals</th><th>Compensation</th><th>Status &amp; actions</th></tr></thead><tbody id="jobs"></tbody></table></div>
+    <div class="tablewrap"><table class="opportunity-table"><thead><tr><th title="Opportunity strength for Eli: higher score is better; #1 is best">Priority</th><th>Company</th><th>Opportunity</th><th title="Austin or remote evidence and matching resume skills">Fit &amp; resume signals</th><th>Compensation</th><th>Status &amp; actions</th></tr></thead><tbody id="jobs"></tbody></table></div>
     <section id="resumeAnalysis" class="resume-analysis" hidden></section>
     <section id="actualResume" class="actual-resume" hidden>
       <header class="actual-resume-hero">
@@ -96,9 +96,9 @@
     <section id="todoView" class="todo-view" hidden></section>
   </main>
   <dialog id="importDialog"><form onsubmit="doImport(event)"><h2>Import candidate jobs</h2><p>Paste URLs, CSV with a url column, or JSON.</p><textarea id="importText" required></textarea><footer><button type="button" class="btn" onclick="importDialog.close()">Cancel</button><button class="btn primary">Import + score</button></footer></form></dialog>
-  <dialog id="linkedinDialog"><form onsubmit="discoverLinkedIn(event)"><h2>Find jobs on LinkedIn</h2><p>Public listings only; defaults to the high-priority last 7 days.</p><div class="fields"><label>Keywords<input id="liKeywords" value="Senior Backend Engineer" required></label><label class="full">Target cities (semicolon-separated)<input id="liLocations" value="Austin, TX; Seattle, WA; Chicago, IL; Denver, CO; Boston, MA; Atlanta, GA" required></label><label>Posted within<select id="liDays"><option value="1">24 hours</option><option value="7" selected>7 days</option><option value="30">30 days</option></select></label><label>Maximum results<input id="liLimit" type="number" min="1" max="350" value="300"></label></div><p class="fine">Austin-proper and fully remote postings are always mined as strategic burn signals. No login, cookies, CAPTCHA bypass, or auto-application.</p><footer><button type="button" class="btn" onclick="linkedinDialog.close()">Cancel</button><button id="liSubmit" class="btn linkedin">Search + rank</button></footer></form></dialog>
+  <dialog id="linkedinDialog"><form onsubmit="discoverLinkedIn(event)"><h2>Find jobs on LinkedIn</h2><p>Public listings only; defaults to the high-priority last 7 days.</p><div class="fields"><label>Keywords<input id="liKeywords" value="Senior Backend Engineer" required></label><label class="full">Target cities (semicolon-separated)<input id="liLocations" value="Austin, TX; Seattle, WA; Chicago, IL; Denver, CO; Boston, MA; Atlanta, GA" required></label><label>Posted within<select id="liDays"><option value="1">24 hours</option><option value="7" selected>7 days</option><option value="30">30 days</option></select></label><label>Maximum results<input id="liLimit" type="number" min="1" max="350" value="300"></label></div><p class="fine">Verify each role on the employer's own site before applying. No login, cookies, CAPTCHA bypass, or auto-application.</p><footer><button type="button" class="btn" onclick="linkedinDialog.close()">Cancel</button><button id="liSubmit" class="btn linkedin">Search + rank</button></footer></form></dialog>
   <div id="toast"></div>
-  <script src="/static/app.js?v=20260827-5"></script>
+  <script src="/static/app.js?v=20260924-3"></script>
   <script src="/static/resume.js?v=20260827-6"></script>
   <script src="/static/practice.js?v=20260826-10"></script>
   <script src="/static/interview.js?v=20260826-1"></script>

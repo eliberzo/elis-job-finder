@@ -49,7 +49,6 @@ function row(job, rank, options = {}) {
   const effectiveCompensation = Number(job.salary_max || job.market_compensation || 0);
   const belowTarget = effectiveCompensation > 0 && effectiveCompensation < 200000;
   const actualSaved = Boolean(options.actualSaved);
-  const practiceSaved = Boolean(options.practiceSaved);
   const strategicAuto = Boolean(options.strategicAuto);
   const benchmark = job.levels_benchmark;
   const benchmarkAmount = benchmark && (benchmark.senior_total_comp || benchmark.median_total_comp);
@@ -65,7 +64,7 @@ function row(job, rank, options = {}) {
       : `<span class="levelsref estimate" title="Fallback estimate used only because no sourced compensation was available">Estimated TC: ${money(marketAmount)}</span>`
     : benchmarkAmount ? `<a class="levelsref" href="${esc(benchmark.source_url)}" target="_blank" rel="noopener" title="Levels.fyi crowdsourced annual total compensation: base plus annualized stock and bonus. Retrieved ${esc((benchmark.fetched_at || '').slice(0, 10))}.">Levels.fyi ${esc(benchmarkLabel)} TC: ${money(benchmarkAmount)}</a>` : '';
   const compensationHeadline = job.salary_text || (marketAmount ? `${usReference ? 'U.S. market TC reference' : employerBenchmark ? 'Company range benchmark' : 'Market TC estimate'}: ${money(marketAmount)}` : 'No compensation yet');
-  const officialSource = ['greenhouse','lever','workable','apple','phenom','amazon','jibe','workday','ashby','google','microsoft','oracle','realtor','tesla','gm','teamtailor','schwab','procore'].includes(String(job.source || '').toLowerCase());
+  const officialSource = ['greenhouse','lever','workable','apple','phenom','amazon','jibe','workday','ashby','google','microsoft','oracle','realtor','tesla','gm','teamtailor','schwab','procore','cisco','salesforce'].includes(String(job.source || '').toLowerCase());
   const sourceLabel = officialSource ? 'Official ATS' : job.source === 'linkedin' ? 'LinkedIn' : (job.source || 'Imported');
   const sourceTitle = officialSource ? `Direct company recruiting feed (${job.source})` : `Listing source: ${sourceLabel}`;
 
@@ -76,17 +75,14 @@ function row(job, rank, options = {}) {
   if (!child) {
     const savedLabel = strategicAuto || actualSaved ? '★ Apply' : '☆ Apply';
     const savedTitle = strategicAuto ? 'Automatically selected to apply as a major technology or AI company' : `${actualSaved ? 'Remove from' : 'Add to'} Selected to apply`;
-    const practiceLabel = practiceSaved ? '✓ Practice' : '＋ Practice';
-    const practiceTitle = strategicAuto ? 'Automatically selected to apply; unavailable for practice' : practiceSaved ? 'Remove this company from Selected as practice' : actualSaved ? 'Move this company from Selected to apply to Selected as practice' : 'Add this company to Selected as practice';
-    companyCell += `<div class="saveactions"><button class="btn actualsave ${actualSaved ? 'actualsaved' : ''}" data-company="${esc(job.company)}" title="${savedTitle}" ${strategicAuto ? 'disabled' : ''} onclick="toggleActual(this)">${savedLabel}</button><button class="btn practicesave ${practiceSaved ? 'practicesaved' : ''}" data-company="${esc(job.company)}" title="${practiceTitle}" ${strategicAuto ? 'disabled' : ''} onclick="togglePractice(this)">${practiceLabel}</button></div>`;
+    companyCell += `<div class="saveactions"><button class="btn actualsave ${actualSaved ? 'actualsaved' : ''}" data-company="${esc(job.company)}" title="${savedTitle}" ${strategicAuto ? 'disabled' : ''} onclick="toggleActual(this)">${savedLabel}</button></div>`;
   }
 
   const austinTitle = job.austin_presence
     ? job.austin_commute_place ? `${job.austin_commute_place} is in the Austin commute-zone mapping (~${job.austin_commute_minutes} min nominal drive)` : `${job.austin_job_count} Austin-area company signal${job.austin_job_count === 1 ? '' : 's'} found`
     : 'No Austin or mapped commute-zone evidence found';
   const remoteTitle = job.remote_presence ? `${job.remote_job_count} fully remote role${job.remote_job_count === 1 ? '' : 's'} found` : 'No fully remote roles found';
-  const practiceTitle = job.burn_eligible ? 'Eligible for a practice application' : strategicAuto || actualSaved ? 'Selected to apply, so it is not a practice candidate' : 'Austin or remote presence makes this ineligible for practice';
-  const fitSignals = child ? '<span class="alternate-label">Role-level matches</span>' : `<div class="fitbadges">${fitBadge('Austin', job.austin_presence, austinTitle)}${fitBadge('Remote', job.remote_presence, remoteTitle)}${fitBadge('Practice', job.burn_eligible, practiceTitle)}</div>`;
+  const fitSignals = child ? '<span class="alternate-label">Role-level matches</span>' : `<div class="fitbadges">${fitBadge('Austin', job.austin_presence, austinTitle)}${fitBadge('Remote', job.remote_presence, remoteTitle)}</div>`;
   const skillSignals = `<div class="skillchips" title="${esc(matches.join(', '))}">${chips || '<span class="subline">No resume matches</span>'}</div>`;
 
   return `<tr class="${child ? 'childrow' : 'companyparent'}" ${child ? `data-parent="${options.group}"` : ''}>
@@ -153,13 +149,11 @@ function renderNextMoves(jobs) {
 function renderCorpusProgress(data) {
   const panel = $('#corpusProgress');
   const progress = data.corpus_progress || {};
-  const jobTarget = Number(progress.job_target || 3000);
-  const austinTarget = Number(progress.austin_proper_company_target || 300);
-  const jobPercent = Math.min(100, Math.round(Number(data.corpus_total || 0) / jobTarget * 100));
-  const austinPercent = Math.min(100, Math.round(Number(progress.austin_proper_company_count || 0) / austinTarget * 100));
-  panel.innerHTML = `<div class="corpus-progress-intro"><small>MINING COVERAGE</small><b>Corpus targets</b><span>${data.corpus_companies} distinct companies · ${progress.direct_source_jobs || 0} direct-source postings · ${progress.linkedin_jobs || 0} LinkedIn postings</span></div>
-    <div class="corpus-goal"><div><b>${data.corpus_total.toLocaleString()} <small>/ ${jobTarget.toLocaleString()}</small></b><span>relevant postings · ${Number(progress.jobs_remaining || 0).toLocaleString()} remaining</span></div><i><em style="width:${jobPercent}%"></em></i><strong>${jobPercent}%</strong></div>
-    <div class="corpus-goal"><div><b>${Number(progress.austin_proper_company_count || 0).toLocaleString()} <small>/ ${austinTarget}</small></b><span>Austin-proper companies · ${Number(progress.austin_companies_remaining || 0).toLocaleString()} remaining</span></div><i><em style="width:${austinPercent}%"></em></i><strong>${austinPercent}%</strong></div>`;
+  const jobs = data.jobs || [];
+  const employers = new Set(jobs.map(job => job.company_key || job.company)).size;
+  panel.innerHTML = `<div class="corpus-progress-intro"><small>REAL JOBS</small><b>Focused application queue</b><span>${Number(progress.direct_source_jobs || 0).toLocaleString()} employer-source postings tracked · ${Number(progress.linkedin_jobs || 0).toLocaleString()} LinkedIn postings</span></div>
+    <div class="corpus-goal"><div><b>${jobs.length.toLocaleString()}</b><span>matching roles in this view</span></div></div>
+    <div class="corpus-goal"><div><b>${employers.toLocaleString()}</b><span>employers in this view</span></div></div>`;
 }
 
 function toggleCompany(id, alternateCount) {

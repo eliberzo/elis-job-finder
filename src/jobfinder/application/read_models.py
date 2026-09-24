@@ -102,10 +102,10 @@ def jobs_view(params: Mapping[str, str]) -> dict[str, Any]:
     if status == "active":
         clauses.append("closed_at IS NULL")
         if not saved_only:
-            clauses.append("status NOT IN ('APPLIED','SKIPPED','PROTECTED') AND company_key NOT IN (SELECT company_key FROM jobs WHERE status='APPLIED')")
-            # Keep a user's selected rows accessible, but don't present dated,
-            # expired discoveries as current opportunities in the active queue.
-            clauses.append("(actual_saved=1 OR practice_saved=1 OR date_posted IS NULL OR trim(date_posted)='' OR date(date_posted) >= date('now','-30 days'))")
+            # A selected real role is still an opportunity until it is applied
+            # to or skipped. Old selections remain available in the saved view.
+            clauses.append("status NOT IN ('APPLIED','SKIPPED') AND company_key NOT IN (SELECT company_key FROM jobs WHERE status='APPLIED')")
+            clauses.append("date_posted IS NOT NULL AND trim(date_posted)!='' AND date(date_posted) >= date('now','-30 days')")
     elif status:
         clauses.append("status=?")
         sql_params.append(status)
