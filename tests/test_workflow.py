@@ -1260,12 +1260,13 @@ class MatchingTests(unittest.TestCase):
         self.assertIsNone(pwc_posting_item(record))
 
     def test_paypal_provider_normalizes_browser_record(self):
+        fresh_date = (datetime.now(timezone.utc) - timedelta(days=5)).date().isoformat()
         record = {
             "provider_job_id": "274922048863",
             "title": "Sr Software Engineer",
             "location": "Austin, Texas, United States of America",
             "url": "https://paypal.eightfold.ai/careers?pid=274922048863",
-            "date_posted": "2026-08-24",
+            "date_posted": fresh_date,
             "description": "Build Java, Go, Python, Kubernetes, Terraform, AWS, CI/CD, and distributed platform services. " * 8 + "Austin, TX | Salary: $167,149.00-221,500.00 per annum.",
         }
         item = paypal_job_item(record)
@@ -3147,6 +3148,7 @@ class MatchingTests(unittest.TestCase):
         self.assertIsNone(jibe_job_item("H-E-B", "https://careers.heb.com", record))
 
     def test_generic_jibe_provider_accepts_explicit_austin_additional_location(self):
+        fresh_date = (datetime.now(timezone.utc) - timedelta(days=5)).date().isoformat()
         record = {"data": {
             "slug": "34613", "title": "Senior Data Engineer",
             "city": "Raleigh", "state": "North Carolina", "country_code": "US",
@@ -3154,7 +3156,7 @@ class MatchingTests(unittest.TestCase):
                 {"city": "Phoenix", "state": "Arizona", "country_code": "US"},
                 {"city": "Austin", "state": "Texas", "country": "United States"},
             ],
-            "posted_date": "2026-08-24T21:29:00+0000",
+            "posted_date": f"{fresh_date}T21:29:00+0000",
             "description": "Build Python data pipelines, cloud APIs, and distributed platform services. " * 8,
             "location_type": "ANY", "tags2": ["Remote"],
         }}
@@ -3168,10 +3170,12 @@ class MatchingTests(unittest.TestCase):
         self.assertIsNone(jibe_job_item("First Citizens Bank", "https://jobs.firstcitizens.com", record))
 
     def test_amazon_provider_requires_an_explicit_austin_location(self):
+        fresh_date = (datetime.now(timezone.utc) - timedelta(days=5)).date()
+        posted_date = f"{fresh_date.strftime('%B')} {fresh_date.day}, {fresh_date.year}"
         job = {
             "title": "Senior Software Development Engineer, OpenSearch",
             "job_path": "/en/jobs/123/senior-software-development-engineer-opensearch",
-            "posted_date": "August 24, 2026",
+            "posted_date": posted_date,
             "location": "US, WA, Seattle",
             "locations": [
                 json.dumps({"city": "Seattle", "normalizedCountryCode": "USA", "type": "ONSITE"}),
@@ -3186,7 +3190,7 @@ class MatchingTests(unittest.TestCase):
         item = amazon_job_item(job)
         self.assertIsNotNone(item)
         self.assertEqual(item["location"], "Austin, TX")
-        self.assertEqual(item["date_posted"], "2026-08-24")
+        self.assertEqual(item["date_posted"], fresh_date.isoformat())
         self.assertEqual(item["source"], "amazon")
         self.assertEqual(item["salary_text"], "$168,100 - $227,400")
         self.assertEqual(item["salary_min"], 168100)
@@ -3797,6 +3801,12 @@ class MatchingTests(unittest.TestCase):
         self.assertTrue(posting_is_relevant({"title": "Engineering Manager, Backend Platform", "description": description, "location": "Austin, TX"}))
         self.assertTrue(posting_is_relevant({"title": "Software Development Manager", "description": description, "location": "Austin, TX"}))
         self.assertFalse(posting_is_relevant({"title": "Senior Product Manager, Platform", "description": description, "location": "Austin, TX"}))
+        self.assertFalse(posting_is_relevant({"title": "Sr Fiber Deploy TIPM, Global Connectivity Infrastructure Development", "description": description, "location": "Austin, TX"}))
+        self.assertFalse(posting_is_relevant({
+            "title": "Security Engineer II, Stores AppSec",
+            "description": ("Conduct application security reviews and penetration tests, document findings, and advise service owners on remediation. " * 8),
+            "location": "Austin, TX",
+        }))
         self.assertFalse(posting_is_relevant({"title": "Senior Technical Project Manager for Healthcare Data Engineering", "description": description, "location": "Austin, TX"}))
         self.assertFalse(posting_is_relevant({"title": "Senior Customer Engineering Manager, Majors - Texas", "description": description, "location": "Austin, TX"}))
         self.assertFalse(posting_is_relevant({"title": "Solutions Engineering Manager, Iberia & Italy", "description": description, "location": "Hybrid"}))

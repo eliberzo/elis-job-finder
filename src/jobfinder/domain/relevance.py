@@ -48,6 +48,10 @@ def title_is_candidate(job: dict[str, Any]) -> bool:
             title,
         ))
     over_level = any(term in title for term in ("principal", "distinguished", "fellow"))
+    # Amazon abbreviates Technical Infrastructure Program Manager as TIPM;
+    # an infrastructure keyword alone must not admit a program-management job.
+    if re.search(r"\btipm\b", title):
+        return False
     security_research_software = "security research engineer" in title and sum(
         signal in description for signal in (
             "internal tooling", "data pipeline", "cloud infrastructure",
@@ -248,6 +252,11 @@ def posting_is_relevant(job: dict[str, Any]) -> bool:
         and "siem platforms" in description
         and "purple team" in description
     )
+    application_security_assessment_focused = (
+        "appsec" in normalized_title
+        and "application security reviews" in description
+        and "penetration tests" in description
+    )
     design_system_ui_focused = (
         "design system" in normalized_title
         and "reusable components" in description
@@ -261,7 +270,7 @@ def posting_is_relevant(job: dict[str, Any]) -> bool:
             "build applications", "build services", "write code",
         ))
     )
-    if frontend_heavy or frontend_architecture_focused or explicitly_frontend_focused or user_interface_focused or mobile_application_focused or game_engine_focused or hardware_focused or field_systems_hardware_manager or embedded_benchmarking or power_grid_engineering or disguised_test_engineering or office_administration_focused or device_administration_focused or security_operations_focused or design_system_ui_focused or operations_consulting_without_software_build: return False
+    if frontend_heavy or frontend_architecture_focused or explicitly_frontend_focused or user_interface_focused or mobile_application_focused or game_engine_focused or hardware_focused or field_systems_hardware_manager or embedded_benchmarking or power_grid_engineering or disguised_test_engineering or office_administration_focused or device_administration_focused or security_operations_focused or application_security_assessment_focused or design_system_ui_focused or operations_consulting_without_software_build: return False
     backend_signals = (
         "backend", "back-end", "server-side", "full stack", "full-stack", "fullstack",
         "distributed system", "microservice", "platform", "infrastructure", "cloud", "kafka",
