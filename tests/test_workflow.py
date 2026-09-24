@@ -3859,6 +3859,11 @@ class MatchingTests(unittest.TestCase):
             "description": "Run threat hunting across SIEM platforms and purple team exercises. Build security operations dashboards and incident response automation. " * 8,
             "location": "Austin, TX",
         }))
+        self.assertFalse(posting_is_relevant({
+            "title": "Senior Security Engineer - Detection & Response",
+            "description": "Lead threat hunting and incident response through SIEM and SOAR, write detection rules, and perform endpoint forensics. Build Python automation for cloud telemetry. " * 8,
+            "location": "Austin, TX",
+        }))
         self.assertFalse(posting_is_relevant({"title": "Sr Systems Development Engineer, AWS AI/ML Servers", "description": "Debug accelerator server hardware, firmware, kernels, PCIe topology, GPU diagnostics, and Linux drivers. " * 20, "location": "Austin, TX"}))
         self.assertFalse(posting_is_relevant({"title": "Director of Engineering", "description": description, "location": "Austin, TX"}))
         self.assertFalse(posting_is_relevant({"title": "Staff Frontend Software Engineer", "description": description}))

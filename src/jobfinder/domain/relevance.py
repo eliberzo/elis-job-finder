@@ -247,10 +247,18 @@ def posting_is_relevant(job: dict[str, Any]) -> bool:
         and "enterprise printing services" in description
     )
     security_operations_focused = (
-        "threat detection engineer" in normalized_title
-        and "threat hunting" in description
-        and "siem platforms" in description
-        and "purple team" in description
+        (
+            "threat detection engineer" in normalized_title
+            or (
+                "security engineer" in normalized_title
+                and re.search(r"\b(?:detection|response)\b", normalized_title)
+            )
+        )
+        and not any(signal in normalized_title for signal in ("platform", "software"))
+        and sum(signal in description for signal in (
+            "threat hunting", "incident response", "siem", "soar",
+            "detection rules", "forensics", "purple team",
+        )) >= 3
     )
     application_security_assessment_focused = (
         "appsec" in normalized_title
