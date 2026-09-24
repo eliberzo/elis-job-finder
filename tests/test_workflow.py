@@ -3816,6 +3816,7 @@ class MatchingTests(unittest.TestCase):
         self.assertFalse(posting_is_relevant({"title": "Applications Engineering Manager", "description": description, "location": "Austin, TX"}))
         self.assertFalse(posting_is_relevant({"title": "Project Engineering Manager - Water", "description": description, "location": "Austin, TX"}))
         self.assertFalse(posting_is_relevant({"title": "Mechanical Engineering Manager", "description": description, "location": "Austin, TX"}))
+        self.assertFalse(posting_is_relevant({"title": "Sr. Power Design Engineer, DC GPU Platform Design", "description": description, "location": "Austin, TX"}))
         self.assertFalse(posting_is_relevant({"title": "VP, Software Engineering Manager", "description": description, "location": "Austin, TX"}))
         self.assertFalse(posting_is_relevant({"title": "Engineering Manager", "description": "Rapid manufacturing capabilities and team leadership. " * 20, "location": "Austin, TX"}))
         self.assertTrue(posting_is_relevant({"title": "Engineering Manager", "description": "Lead a software engineering team building backend APIs and distributed systems. " * 20, "location": "Austin, TX"}))

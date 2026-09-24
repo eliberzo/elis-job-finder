@@ -76,7 +76,7 @@ def title_is_candidate(job: dict[str, Any]) -> bool:
     excluded = any(term in title for term in (
         "frontend", "front-end", "front end",
         "mobile", "ios", "android", "ui/uix", "qa ", "quality assurance", "test engineer",
-        "embedded", "firmware", "hardware", "chassis", "soft goods", "asic", "vlsi", "chip design", "photonic", "post-silicon",
+        "embedded", "firmware", "hardware", "chassis", "soft goods", "asic", "vlsi", "chip design", "power design", "photonic", "post-silicon",
         "analog engineering",
         "flight software", "graphics", "compiler", "simulation", "wireless", "windows sensor", "linux sensor", "macos sensor", "sensor event", "sensor - mac",
         "zephyr", "open bmc", "openbmc", "graviton software", "cuda driver", "gpu driver", "driver development",
