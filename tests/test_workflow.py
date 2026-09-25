@@ -4260,6 +4260,18 @@ class MatchingTests(unittest.TestCase):
         self.assertGreater(us_person["actual_score"], 0)
         self.assertIn("saved profile is ineligible", citizen_only["actual_reason"])
 
+    def test_permanent_resident_eligible_when_posting_explicitly_allows_us_pr(self):
+        job = {
+            "company": "Security Co", "title": "Senior Backend Software Engineer", "location": "Austin, TX",
+            "description": "Python backend distributed systems platform infrastructure " * 20
+            + " Must be a U.S. Citizen or US Permanent Resident.",
+            "date_posted": date.today().isoformat(), "salary_max": 250000,
+        }
+        resident_profile = {**PROFILE, "permanent_resident": True, "us_person": True, "us_citizen": False}
+        result = score(job, resident_profile, set(), {})
+        self.assertGreater(result["actual_score"], 0)
+        self.assertNotIn("citizenship requirement", result["concerns"])
+
     def test_incomplete_description_cannot_enter_actual_ranking(self):
         job = {"company": "Incomplete Co", "title": "Staff Backend Software Engineer", "description": "Short public preview", "location": "Austin, TX", "date_posted": "2026-08-25", "salary_max": 320000}
         result = score(job, PROFILE, set(), {})

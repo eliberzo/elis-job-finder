@@ -21,6 +21,7 @@ def requires_us_citizenship(text: Any) -> bool:
     value = str(text or "").casefold()
     permanent_resident_allowed = any(term in value for term in (
         "citizen or permanent resident", "citizen or lawful permanent resident",
+        "citizen or us permanent resident", "citizen or u.s. permanent resident",
         "citizens or permanent residents", "citizens or lawful permanent residents",
         "citizen or green card", "citizens or green card holders",
         "u.s. citizen, lawful permanent resident", "us citizen, lawful permanent resident",
