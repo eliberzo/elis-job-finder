@@ -30,6 +30,7 @@ BACKEND_TERMS = ("backend", "back-end", "platform", "distributed", "api", "micro
 SENIOR_TERMS = (
     "senior", "sr.", "sr ", "staff", "mts 1", "mts 2",
     "software engineer ii", "software engineer iii", "software engineer 2", "software engineer 3",
+    "software developer iii", "software developer 3",
     "engineer ii", "engineer iii", "engineer 2", "engineer 3",
     "technical lead", "tech lead", "lead software engineer",
     "engineering manager", "software development manager", "manager, software engineering",

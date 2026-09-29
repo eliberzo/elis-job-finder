@@ -4272,6 +4272,15 @@ class MatchingTests(unittest.TestCase):
         self.assertGreater(result["actual_score"], 0)
         self.assertNotIn("citizenship requirement", result["concerns"])
 
+    def test_software_developer_3_counts_as_experienced_engineer_level(self):
+        job = {
+            "company": "Oracle", "title": "Software Developer 3", "location": "Austin, TX",
+            "description": "Build Python cloud APIs and distributed services at scale. " * 20,
+            "date_posted": date.today().isoformat(), "salary_max": 209500,
+        }
+        result = score(job, PROFILE, set(), {})
+        self.assertIn("Senior-level", result["actual_reason"])
+
     def test_incomplete_description_cannot_enter_actual_ranking(self):
         job = {"company": "Incomplete Co", "title": "Staff Backend Software Engineer", "description": "Short public preview", "location": "Austin, TX", "date_posted": "2026-08-25", "salary_max": 320000}
         result = score(job, PROFILE, set(), {})
