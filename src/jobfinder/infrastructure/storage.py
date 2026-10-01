@@ -714,7 +714,7 @@ def refresh_top_job_cache(limit: int = 40) -> int:
         conn.execute("UPDATE jobs SET top_rank=NULL")
         rows = conn.execute("""SELECT * FROM jobs
             WHERE status NOT IN ('APPLIED','SKIPPED','PROTECTED') AND actual_saved=0 AND closed_at IS NULL
-              AND COALESCE(salary_max,market_compensation,suggested_salary,0) >= 200000
+              AND date_posted IS NOT NULL AND date(date_posted) >= date('now','-14 days')
             ORDER BY practice_score DESC, fit_score DESC, recency_score DESC,
                      COALESCE(salary_max,market_compensation,suggested_salary,0) DESC""").fetchall()
         for row in rows:

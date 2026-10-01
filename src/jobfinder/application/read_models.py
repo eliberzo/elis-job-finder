@@ -105,13 +105,14 @@ def jobs_view(params: Mapping[str, str]) -> dict[str, Any]:
             # A selected real role is still an opportunity until it is applied
             # to or skipped. Old selections remain available in the saved view.
             clauses.append("status NOT IN ('APPLIED','SKIPPED') AND company_key NOT IN (SELECT company_key FROM jobs WHERE status='APPLIED')")
-            clauses.append("date_posted IS NOT NULL AND trim(date_posted)!='' AND date(date_posted) >= date('now','-30 days')")
+            clauses.append("date_posted IS NOT NULL AND trim(date_posted)!='' AND date(date_posted) >= date('now','-14 days')")
     elif status:
         clauses.append("status=?")
         sql_params.append(status)
     if not selected_only:
         clauses.append("company_key NOT IN (SELECT company_key FROM jobs WHERE practice_saved=1)")
-        clauses.append("COALESCE(salary_max,market_compensation,suggested_salary,0) >= 200000")
+        # Compensation is a ranking preference, not a hard eligibility gate:
+        # base pay below $200k can still have credible equity/sign-on upside.
     if search:
         clauses.append("(company LIKE ? OR title LIKE ? OR location LIKE ? OR detected_skills LIKE ? OR matches LIKE ?)")
         sql_params.extend([f"%{search}%"] * 5)

@@ -4188,12 +4188,12 @@ class MatchingTests(unittest.TestCase):
         target = base | {"title": "Staff Backend Software Engineer", "location": "Austin, TX", "salary_max": 280000, "description": base["description"] + " generative AI application platform"}
         self.assertGreater(score(target, PROFILE, set(), {})["actual_score"], score(base, PROFILE, set(), {})["actual_score"])
 
-    def test_actual_score_separates_visibility_floor_from_240k_target(self):
+    def test_actual_score_prefers_posted_pay_reaching_200k_target(self):
         job = {"company": "Comp Co", "title": "Staff Backend Software Engineer", "description": "Python Kafka distributed systems API platform " * 10, "location": "Remote - US", "date_posted": "2026-08-25"}
-        target = score(job | {"salary_max": 244100}, PROFILE, set(), {})
-        below = score(job | {"salary_max": 203400}, PROFILE, set(), {})
-        self.assertGreaterEqual(target["actual_score"] - below["actual_score"], 2.0)
-        self.assertIn("below $240k target", below["actual_reason"])
+        target = score(job | {"salary_max": 203400}, PROFILE, set(), {})
+        below = score(job | {"salary_max": 194400}, PROFILE, set(), {})
+        self.assertGreaterEqual(target["actual_score"] - below["actual_score"], .8)
+        self.assertIn("below $200k target", below["actual_reason"])
 
     def test_specialized_ml_role_is_penalized_without_resume_evidence(self):
         common = {
@@ -4330,7 +4330,7 @@ class PersistenceTests(unittest.TestCase):
     def test_active_queue_hides_stale_unsaved_jobs(self):
         from datetime import date, timedelta
 
-        cutoff = date.today() - timedelta(days=30)
+        cutoff = date.today() - timedelta(days=14)
         result = jobs_view({"location": "austin", "status": "active"})
         for job in result["jobs"]:
             posted = job.get("date_posted")
@@ -4357,6 +4357,22 @@ class PersistenceTests(unittest.TestCase):
                 urls = {job["url"] for job in active["jobs"]}
                 self.assertIn("https://example.com/queue-test-fresh", urls)
                 self.assertNotIn("https://example.com/queue-test-stale", urls)
+
+    def test_active_queue_keeps_fresh_relevant_job_below_base_pay_target(self):
+        with tempfile.TemporaryDirectory() as directory:
+            temporary_db = Path(directory) / "jobs.db"
+            shutil.copy2(DB_PATH, temporary_db)
+            with patch.object(storage, "DB_PATH", temporary_db):
+                with storage.db() as conn:
+                    conn.execute(
+                        "INSERT INTO jobs (company,company_key,title,location,url,source,description,date_posted,salary_max,status,discovered_at) "
+                        "VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+                        ("Queue Pay Test", "queue pay test", "Software Development Engineer, OpenSearch", "Austin, TX",
+                         "https://example.com/queue-pay-test", "amazon", "Build distributed search infrastructure. " * 12,
+                         date.today().isoformat(), 194400, "NEW", datetime.now(timezone.utc).isoformat()),
+                    )
+                active = jobs_view({"location": "austin", "status": "active", "q": "Queue Pay Test"})
+                self.assertIn("https://example.com/queue-pay-test", {job["url"] for job in active["jobs"]})
 
     def test_job_read_model_owns_query_and_company_presentation_signals(self):
         result = jobs_view({"location": "us", "status": "active", "sort": "actual"})
@@ -5242,7 +5258,7 @@ class PersistenceTests(unittest.TestCase):
         self.assertEqual(len({row["company_key"] for row in rows}), len(rows))
         self.assertTrue(all(row.get("url", "").startswith("http") for row in rows))
         self.assertTrue(all(isinstance(row.get("skills"), list) for row in rows))
-        self.assertTrue(all((row.get("salary_max") or row.get("suggested_salary") or 0) >= 200000 for row in rows))
+        self.assertTrue(all(not row.get("closed_at") for row in rows))
 
     def test_levels_bank_is_attributed_and_has_compensation(self):
         rows = [json.loads(line) for line in LEVELS_BANK_PATH.read_text().splitlines()]

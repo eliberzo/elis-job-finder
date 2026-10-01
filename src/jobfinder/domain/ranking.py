@@ -271,7 +271,7 @@ class RankingEngine:
         staff = "staff" in ctx.title and "principal" not in ctx.title
         ai_application = int(any(term in ctx.text for term in APPLIED_AI_TERMS))
         level_points = 1.0 if staff else .65 if ctx.senior else -1.0
-        compensation_points = 1.5 if effective_hi and float(effective_hi) >= 300000 else 1.1 if effective_hi and float(effective_hi) >= 240000 else -1.2 if effective_hi and float(effective_hi) >= 200000 else -2.5 if effective_hi else -.5
+        compensation_points = 1.5 if effective_hi and float(effective_hi) >= 300000 else 1.1 if effective_hi and float(effective_hi) >= 200000 else 0.0 if effective_hi and float(effective_hi) >= 180000 else -1.2 if effective_hi else -.5
         geography_points = 1.0 if is_austin_proper_location(ctx.location) else .7 if ctx.commute_place else .8 if ctx.arrangement == "remote" else 0
         actual = fit * .55 + level_points + compensation_points + geography_points + (.7 if ai_application else 0)
         rules = [
@@ -320,7 +320,7 @@ class RankingEngine:
         freshness = "fresh listing" if ctx.age_days is not None and ctx.age_days <= 7 else "older listing" if ctx.age_days is not None and ctx.age_days > 14 else "posting age unclear"
         reason = f"{'Strong' if fit >= 7 else 'Plausible' if fit >= 5 else 'Weak'} {good} match; {'useful Senior loop' if practice >= 6.5 else 'limited practice signal'}; {freshness}; {'low strategic cost' if burn <= 3 else 'high-value opportunity—consider saving for actual'}."
         freshness_reason = "fresh (7 days or less)" if ctx.age_days is not None and ctx.age_days <= 7 else "aging (8–14 days)" if ctx.age_days is not None and ctx.age_days <= 14 else "stale (15–30 days)" if ctx.age_days is not None and ctx.age_days <= 30 else "very stale (over 30 days)" if ctx.age_days is not None else "posting date unknown"
-        compensation_reason = "posted compensation meets $240k target" if hi and float(hi) >= 240000 else "posted compensation below $240k target" if hi else "market compensation meets $240k target" if market and float(market) >= 240000 else "market compensation below $240k target" if market else "compensation unknown"
+        compensation_reason = "posted compensation meets $200k target" if hi and float(hi) >= 200000 else "posted compensation below $200k target" if hi else "market compensation meets $200k target" if market and float(market) >= 200000 else "market compensation below $200k target" if market else "compensation unknown"
         geography = "outside the U.S. target market" if is_explicitly_non_us_location(ctx.location) else "Austin proper" if is_austin_proper_location(ctx.location) else f"Austin commute zone ({ctx.commute_place['label']}, ~{ctx.commute_place['minutes']} min nominal)" if ctx.commute_place else "remote from Austin" if ctx.arrangement == "remote" else "no Austin/remote bonus"
         level = "Staff-level" if "staff" in ctx.title and "principal" not in ctx.title else "Senior-level" if ctx.senior else "Seniority mismatch"
         actual_reason = "Description incomplete; refresh before ranking." if len(str(ctx.job.get("description", "")).strip()) < 250 else "Security clearance requires U.S. citizenship; the saved profile is ineligible." if ctx.clearance_ineligible else "Role explicitly requires U.S. citizenship; the saved profile is ineligible." if ctx.citizenship_ineligible else f"{level}; {compensation_reason}; {'applied-AI relevance' if ai_application else 'no clear applied-AI signal'}; {geography}; {freshness_reason}."
