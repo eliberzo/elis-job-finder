@@ -3476,6 +3476,8 @@ def oracle_job_item(detail: dict[str, Any], max_age_days: int = 30) -> dict[str,
         "work_arrangement": "remote" if "remote" in clean_text(detail.get("WorkplaceType")).casefold() else "onsite/hybrid",
     }
     item.update(extract_salary(description))
+    if item.get("salary_max") and re.search(r"\bUS:\s*Hiring Range in USD from\b", description, re.I):
+        item["salary_type"] = "base"
     return item if item["title"] and item["url"] else None
 
 
@@ -7853,7 +7855,26 @@ def greenhouse_company_jobs(companies: set[str] | None = None) -> tuple[list[dic
                     "url": public_url, "source": "greenhouse", "description": description,
                     "date_posted": str(published_at or "")[:10] or None, "easy_apply": 0,
                     "work_arrangement": arrangement, "provider_job_id": clean_text(job.get("id"))}
-            item.update(extract_salary(description))
+            salary = extract_salary(description)
+            if company == "Cloudflare" and re.search(
+                r"\bFor (?:California|Colorado|New York|Washington(?: D\.C\.)?|Canada) based hires\s*:",
+                description,
+                re.I,
+            ):
+                # Cloudflare's multi-location postings often list salary
+                # ranges for CA/CO/NY/WA but none for Austin. Do not attribute
+                # the first (California) range to the Texas work location.
+                texas_range = re.search(
+                    r"\bFor (?:Austin|Texas) based hires\s*:[^.]{0,180}",
+                    description,
+                    re.I,
+                )
+                salary = extract_salary(texas_range.group(0)) if texas_range else {
+                    "salary_text": "", "salary_min": None, "salary_max": None, "salary_type": "unknown",
+                }
+                if not texas_range:
+                    item["_salary_not_for_location"] = True
+            item.update(salary)
             if item["url"]: results.append(item)
     return results, errors
 

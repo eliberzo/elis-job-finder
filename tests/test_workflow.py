@@ -1939,7 +1939,7 @@ class MatchingTests(unittest.TestCase):
     def test_oracle_provider_normalizes_public_austin_detail(self):
         detail = {
             "Id": "338844", "Title": "Senior Software Development Engineer",
-            "ExternalPostedStartDate": "2026-08-25T17:27:49+00:00",
+            "ExternalPostedStartDate": datetime.now(timezone.utc).isoformat(),
             "PrimaryLocation": "United States",
             "secondaryLocations": [{"Name": "Austin, TX, United States"}],
             "ExternalDescriptionStr": "Build secure cloud infrastructure and distributed systems.",
@@ -1953,6 +1953,7 @@ class MatchingTests(unittest.TestCase):
         self.assertEqual(item["source"], "oracle")
         self.assertEqual(item["location"], "Austin, TX")
         self.assertEqual(item["salary_max"], 259500)
+        self.assertEqual(item["salary_type"], "base")
         self.assertTrue(item["url"].endswith("/338844"))
         detail["requisitionFlexFields"][0]["Value"] = "Yes"
         self.assertIsNone(oracle_job_item(detail))
@@ -2797,6 +2798,35 @@ class MatchingTests(unittest.TestCase):
         self.assertEqual(errors, [])
         self.assertEqual([job["url"] for job in jobs], ["https://job-boards.greenhouse.io/telnyx54/jobs/2"])
         self.assertEqual(jobs[0]["location"], "Austin, TX")
+
+    def test_cloudflare_does_not_assign_other_states_salary_to_austin(self):
+        today = datetime.now(timezone.utc).isoformat()
+        payload = {"jobs": [{
+            "id": 1, "first_published": today, "title": "Senior Software Engineer - Security Platform",
+            "location": {"name": "Austin, TX"},
+            "absolute_url": "https://boards.greenhouse.io/cloudflare/jobs/1",
+            "content": "Build distributed security infrastructure. For California based hires: "
+                       "Estimated annual salary of $194,000 - $266,000. Equity eligible.",
+        }, {
+            "id": 2, "first_published": today, "title": "Vulnerability Defense Software Engineer",
+            "location": {"name": "Austin, TX"},
+            "absolute_url": "https://boards.greenhouse.io/cloudflare/jobs/2",
+            "content": "Build distributed security infrastructure. For Washington D.C. based hires: "
+                       "Estimated annual salary of $150,000 - $206,000. Equity eligible.",
+        }]}
+
+        class Response:
+            def __enter__(self): return self
+            def __exit__(self, *_args): return False
+            def read(self, _limit): return json.dumps(payload).encode()
+
+        with patch("jobfinder.infrastructure.providers.urllib.request.urlopen", return_value=Response()):
+            jobs, errors = greenhouse_company_jobs({"Cloudflare"})
+        self.assertEqual(errors, [])
+        self.assertEqual(len(jobs), 2)
+        self.assertTrue(all(job["salary_max"] is None for job in jobs))
+        self.assertTrue(all(job["salary_type"] == "unknown" for job in jobs))
+        self.assertTrue(all(normalize_item(job)["salary_max"] is None for job in jobs))
 
     def test_code_and_theory_uses_exact_austin_greenhouse_metadata(self):
         self.assertEqual(GREENHOUSE_BOARDS["Code and Theory"], "codeandtheory")
@@ -4601,6 +4631,31 @@ class PersistenceTests(unittest.TestCase):
             if row["salary_max"] is None:
                 self.assertTrue(row["market_compensation_source"])
                 self.assertTrue(row["market_compensation_url"] or "target-floor" in row["market_compensation_source"])
+
+    def test_missing_pay_is_not_filled_with_an_invented_target_floor(self):
+        from jobfinder.application.compensation import enrich_missing_compensation
+
+        with tempfile.TemporaryDirectory() as directory:
+            temporary_db = Path(directory) / "jobs.db"
+            shutil.copy2(DB_PATH, temporary_db)
+            with patch.object(storage, "DB_PATH", temporary_db), patch(
+                "jobfinder.application.compensation.salary_benchmark_map", return_value={}
+            ), patch("jobfinder.application.compensation.sync_text_db"):
+                with storage.db() as conn:
+                    conn.execute(
+                        "INSERT INTO jobs (company,company_key,title,location,url,description,actual_score,discovered_at) "
+                        "VALUES (?,?,?,?,?,?,?,?)",
+                        ("No Benchmark Co", "no benchmark co", "Senior Backend Engineer", "Austin, TX",
+                         "https://example.com/no-benchmark", "Build distributed backend systems.", 9.0,
+                         datetime.now(timezone.utc).isoformat()),
+                    )
+                result = enrich_missing_compensation()
+                with storage.db() as conn:
+                    amount = conn.execute(
+                        "SELECT market_compensation FROM jobs WHERE url=?", ("https://example.com/no-benchmark",)
+                    ).fetchone()[0]
+            self.assertEqual(result["updated"], 0)
+            self.assertIsNone(amount)
 
     def test_official_ats_refreshes_matching_linkedin_row_in_place(self):
         with tempfile.TemporaryDirectory() as directory:

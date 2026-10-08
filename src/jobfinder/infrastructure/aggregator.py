@@ -122,10 +122,11 @@ def normalize_item(item: Any) -> dict[str, Any]:
     fetched = fetch_job(url) if not item.get("description") else {"url": url, "source": source_name(url)}
     aliases = {"job_title": "title", "city": "location", "job_description": "description", "posted": "date_posted"}
     for key, value in item.items(): fetched[aliases.get(key, key)] = value
-    salary = extract_salary(str(fetched.get("salary_text", "")) + " " + str(fetched.get("description", "")))
-    for key, value in salary.items():
-        if value in (None, "") or (key == "salary_type" and value == "unknown"): continue
-        if fetched.get(key) in (None, "", "unknown"): fetched[key] = value
+    if not fetched.get("_salary_not_for_location"):
+        salary = extract_salary(str(fetched.get("salary_text", "")) + " " + str(fetched.get("description", "")))
+        for key, value in salary.items():
+            if value in (None, "") or (key == "salary_type" and value == "unknown"): continue
+            if fetched.get(key) in (None, "", "unknown"): fetched[key] = value
     if not fetched.get("salary_text"):
         fetched["salary_text"] = format_salary_range(fetched.get("salary_min"), fetched.get("salary_max"))
     return fetched

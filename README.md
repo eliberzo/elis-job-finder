@@ -1,6 +1,6 @@
 # Eli's Job Finder
 
-A local-first, resume-ranked job finder for Eli. It collects public job postings, persists full descriptions and links, extracts skills, groups roles by company, and maintains a moving Top 40 opportunity window.
+A local-first, resume-ranked job finder for Eli. It collects public job postings, persists full descriptions and links, extracts skills, groups roles by company, and maintains a focused queue of recent, real opportunities. The default active view requires a posting date within 14 days; saved selections remain available separately.
 
 This repository contains application code only. The `data/` directory, generated resumes, local databases, saved selections, and interview recordings stay on your machine and are not checked in.
 
@@ -82,7 +82,7 @@ Ranking combines resume fit, interview-practice value, posting recency, compensa
 
 Refresh the salary reference bank with `cd src && ../.venv/bin/python -m jobfinder.infrastructure.levels`. Levels.fyi figures are crowdsourced annual total compensation (base, annualized stock, and bonus), displayed beside—but never conflated with—the job posting's salary range.
 
-Missing compensation is handled by a separate enrichment job. On startup, after collection, or from **$ Fill compensation**, it finds jobs with Match score above 7 and no posted pay, attaches a sourced company/level total-compensation benchmark when available, uses a clearly labeled conservative estimate otherwise, and re-scores the corpus. It can also run directly with `cd src && ../.venv/bin/python -m jobfinder.application.compensation`.
+Missing compensation is handled by a separate enrichment job. On startup, after collection, or from **$ Fill compensation**, it finds strong jobs with no posted pay, attaches a linked company/level total-compensation benchmark when available, and otherwise leaves compensation unknown. It never fills the gap with Eli's target salary or another role's posted range. It can also run directly with `cd src && ../.venv/bin/python -m jobfinder.application.compensation`.
 
 `data/top_jobs.jsonl` stores the best current role from each of the 40 strongest companies. After imports, discovery, status changes, or re-scoring, the cache is rebuilt: stronger opportunities enter and the weakest cached companies fall out. The complete corpus remains in `data/jobs.db` and `data/jobs.jsonl`.
 
